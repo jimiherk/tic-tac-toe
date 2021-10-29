@@ -3,21 +3,31 @@ const winOptions:[[usize;3];8] = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8
 fn main(){
     let mut gameField = ["0","1","2","3","4","5","6","7","8"];
     let mut turn = "X";
-    while checkForWin(gameField)!=true {
+    let mut gameOver = false;
+    while gameOver == false {
         turn = switch(turn);
-        printGameField(gameField, turn);
+        printGameField(gameField);
+        println!();
+        println!("{} Turn", turn);
         gameField[mve(turn, gameField)] = turn;
         if checkForWin(gameField) == true {
-            println!("{} won!", turn)
+            printGameField(gameField);
+            println!("{} won!", turn);
+            gameOver = true
+        }else if checkForDraw(gameField) == true {
+            printGameField(gameField);
+            println!();
+            println!("Draw!");
+            gameOver = true;
+        }else{
+            gameOver = false;
         }
     }
 }
-fn printGameField(gameField:[&str;9],turn:&str){
+fn printGameField(gameField:[&str;9]){
     println!("{} {} {}", gameField[0], gameField[1], gameField[2]);
     println!("{} {} {}", gameField[3], gameField[4], gameField[5]);
     println!("{} {} {}", gameField[6], gameField[7], gameField[8]);
-    println!();
-    println!("{} Turn", turn);
 }
 fn mve(turn:&str,gameField:[&str;9]) -> usize {
     println!("Please input your move");
@@ -47,4 +57,10 @@ fn checkForWin(gameField:[&str;9]) -> bool {
         }
     }
     false
+}
+fn checkForDraw(gameField:[&str;9]) -> bool {
+    return match gameField {
+        ["X" | "O", "X" | "O", "X" | "O", "X" | "O", "X" | "O", "X" | "O", "X" | "O", "X" | "O", "X" | "O"] => {true},
+        _ => {false}
+    }
 }
