@@ -4,17 +4,17 @@ fn main(){
     let mut gameField = ["0","1","2","3","4","5","6","7","8"];
     let mut turn = "X";
     let mut gameOver = false;
-    while gameOver == false {
+    while !gameOver {
         turn = switch(turn);
         printGameField(gameField);
         println!();
         println!("{} Turn", turn);
         gameField[mve(turn, gameField)] = turn;
-        if checkForWin(gameField) == true {
+        if checkForWin(gameField) {
             printGameField(gameField);
             println!("{} won!", turn);
             gameOver = true
-        }else if checkForDraw(gameField) == true {
+        }else if checkForDraw(gameField) {
             printGameField(gameField);
             println!();
             println!("Draw!");
