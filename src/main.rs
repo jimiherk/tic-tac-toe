@@ -56,8 +56,18 @@ fn make_move(game_field: [&str; 9]) -> usize {
     io::stdin()
         .read_line(&mut input)
         .expect("Failed to read line");
-    let input: usize = input.trim().parse().expect("Please type a number!");
-    if game_field[input] == "X" || game_field[input] == "O" {
+
+    let input: usize = match input.trim().parse() {
+        Ok(num) => num,
+        Err(_) => {
+            println!("Invalid move!");
+            make_move(game_field)
+        }
+    };
+    if input > 8 {
+        println!("Invalid move!");
+        make_move(game_field);
+    } else if game_field[input] == "X" || game_field[input] == "O" {
         println!("This field is already taken!");
         make_move(game_field);
     } else {
