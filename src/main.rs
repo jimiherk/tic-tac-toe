@@ -1,11 +1,30 @@
 use std::io;
-use std::mem::transmute;
 
-// How many players are playing? (1 or 2)
-const PLAYERS: i8 = 1;
+// All possible win combinations
+const WIN_COMBOS : [[usize; 3]; 8] = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
 
 // Game
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
+
+    let versus_ai: bool = &args[1] == "ai";
+    let ai_depth: i32;
+
+    if args.len() != 3 {
+        ai_depth = 0;
+    } else {
+        ai_depth = args[2].parse().unwrap();
+    }
+
     let mut game_field = ["0","1","2","3","4","5","6","7","8"];
     // X always starts
     let mut turn = "O";
@@ -22,8 +41,8 @@ fn main() {
         print_field(game_field);
 
         println!("{} turn", turn);
-        if PLAYERS == 1 && turn == "O" {
-            let mut best_move = find_best_move(game_field);
+        if versus_ai && turn == "O" {
+            let mut best_move = find_best_move(game_field, ai_depth);
             game_field[best_move] = turn;
             println!("AI played {}", best_move);
         } else {
@@ -85,16 +104,6 @@ fn check_draw(game_field: [&str; 9]) -> bool {
 }
 
 fn check_win(game_field: [&str; 9]) -> bool {
-    const WIN_COMBOS : [[usize; 3]; 8] = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ];
     for combo in WIN_COMBOS.iter() {
         if game_field[combo[0]] == game_field[combo[1]] && game_field[combo[1]] == game_field[combo[2]] {
             return true;
@@ -117,17 +126,6 @@ fn check_game_over(game_field: [&str; 9]) -> Option<i32> {
 }
 
 fn check_win_mm(game_field: [&str; 9], turn: &str) -> bool {
-    const WIN_COMBOS: [[usize; 3]; 8] = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ];
-
     for combo in WIN_COMBOS.iter() {
         if game_field[combo[0]] == turn && game_field[combo[1]] == turn && game_field[combo[2]] == turn {
             return true;
@@ -145,17 +143,17 @@ fn check_draw_mm(game_field: [&str; 9]) -> bool {
 
 fn minimax(game_field: [&str; 9], depth: i32, turn: &str) -> i32 {
     let score = check_game_over(game_field);
-    if score.is_some() {
+    return if score.is_some() {
         let new_score = score.unwrap();
         if new_score == 10 {
-            return new_score - depth;
+            new_score - depth
         } else if new_score == -10 {
-            return new_score + depth;
+            new_score + depth
         } else {
-            return new_score;
+            new_score
         }
     } else {
-        return if turn == "O" {
+        if turn == "O" {
             let mut best_move = -f64::INFINITY;
             for i in 0..9 {
                 if game_field[i] == " " {
@@ -183,14 +181,14 @@ fn minimax(game_field: [&str; 9], depth: i32, turn: &str) -> i32 {
     }
 }
 
-fn find_best_move(game_field: [&str; 9]) -> usize {
+fn find_best_move(game_field: [&str; 9], depth: i32) -> usize {
     let mut best_move: i32 = -1;
     let mut best_value = -f64::INFINITY;
     let mut new_board = make_new_board(game_field);
     for i in 0..9 {
         if new_board[i] == " " {
             new_board[i] = "O";
-            let move_value = minimax(new_board, 0, "X");
+            let move_value = minimax(new_board, depth, "X");
             new_board[i] = " ";
             if move_value > best_value as i32 {
                 best_move = i as i32;
@@ -202,18 +200,18 @@ fn find_best_move(game_field: [&str; 9]) -> usize {
 }
 
 fn max(v1: f64, v2: f64) -> f64 {
-    if v1 > v2 {
-        return v1;
+    return if v1 > v2 {
+        v1
     } else {
-        return v2;
+        v2
     }
 }
 
 fn min(v1: f64, v2: f64) -> f64 {
-    if v1 < v2 {
-        return v1;
+    return if v1 < v2 {
+        v1
     } else {
-        return v2;
+        v2
     }
 }
 
